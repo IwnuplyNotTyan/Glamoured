@@ -17,6 +17,7 @@ import (
 type Options struct {
 	BaseURL          string
 	WordWrap         int
+	MosaicEnabled    bool
 	TableWrap        *bool
 	InlineTableLinks bool
 	PreserveNewLines bool
