@@ -1,8 +1,16 @@
 package ansi
 
 import (
+	"image"
+	_ "image/jpeg"
+	_ "image/png"
 	"io"
+	"net/http"
+	"os"
 	"strings"
+	"time"
+
+	"github.com/charmbracelet/x/mosaic"
 )
 
 // An ImageElement is used to render images elements.
@@ -14,8 +22,46 @@ type ImageElement struct {
 	TextOnly bool
 }
 
+func loadImage(url string) (image.Image, error) {
+	if strings.HasPrefix(url, "http://") || strings.HasPrefix(url, "https://") {
+		client := &http.Client{Timeout: 10 * time.Second}
+		resp, err := client.Get(url)
+		if err != nil {
+			return nil, err
+		}
+		defer resp.Body.Close()
+		if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+			return nil, http.ErrMissingFile
+		}
+		img, _, err := image.Decode(resp.Body)
+		return img, err
+	}
+	f, err := os.Open(url)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	img, _, err := image.Decode(f)
+	return img, err
+}
+
 // Render renders an ImageElement.
 func (e *ImageElement) Render(w io.Writer, ctx RenderContext) error {
+	if ctx.options.MosaicEnabled && !e.TextOnly {
+		u := resolveRelativeURL(e.BaseURL, e.URL)
+		img, err := loadImage(u)
+		if err == nil {
+			m := mosaic.New()
+			m = m.Width(ctx.options.WordWrap)
+			art := m.Render(img)
+			el := &BaseElement{
+				Token: art,
+				Style: ctx.options.Styles.Image,
+			}
+			return el.Render(w, ctx)
+		}
+	}
+
 	// Make OSC 8 hyperlink token.
 	hyperlink, resetHyperlink, _ := makeHyperlink(e.URL)
 
