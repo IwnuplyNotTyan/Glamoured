@@ -302,6 +302,67 @@ func TestWithChromaFormatterDefault(t *testing.T) {
 	golden.RequireEqual(t, []byte(b))
 }
 
+func TestCenterBlock(t *testing.T) {
+	tests := []struct {
+		name    string
+		md      string
+		check   string
+	}{
+		{
+			name:  "center tag",
+			md:    "<center>\n**Bold**\n</center>",
+			check: "Bold",
+		},
+		{
+			name:  "div align center",
+			md:    "<div align=\"center\">\n**Bold**\n</div>",
+			check: "Bold",
+		},
+		{
+			name:  "div align center unquoted",
+			md:    "<div align=center>\n**Bold**\n</div>",
+			check: "Bold",
+		},
+		{
+			name:  "center with image",
+			md:    "<center>\n![alt](https://example.com/img.png)\n</center>",
+			check: "alt",
+		},
+		{
+			name:  "center in document",
+			md:    "# Title\n\n<center>\n**Centered**\n</center>\n\nFooter",
+			check: "Centered",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			r, err := NewTermRenderer(
+				WithWordWrap(80),
+				WithStandardStyle("dark"),
+			)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			out, err := r.RenderBytes([]byte(tt.md))
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			clean := stripANSI(string(out))
+
+			if strings.Contains(clean, "\x00") {
+				t.Error("marker bytes found in output")
+			}
+
+			if !strings.Contains(clean, tt.check) {
+				t.Errorf("expected output to contain %q", tt.check)
+			}
+		})
+	}
+}
+
 func TestWithChromaFormatterCustom(t *testing.T) {
 	r, err := NewTermRenderer(
 		WithStandardStyle(styles.DarkStyle),

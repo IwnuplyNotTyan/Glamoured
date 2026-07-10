@@ -337,7 +337,6 @@ func (tr *TermRenderer) RenderBytes(in []byte) ([]byte, error) {
 }
 
 var centerRe = regexp.MustCompile(`(?is)<(?:center|div\s+align="?center"?)\s*>([\s\S]*?)</(?:center|div)\s*>`)
-var markerRe = regexp.MustCompile(`\x00GLAMOURCENTER\d+\x00`)
 
 func extractCenterBlocks(input string) (string, map[string]string) {
 	blocks := make(map[string]string)
