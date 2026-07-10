@@ -243,6 +243,15 @@ func WithMosaicWidth(width int) TermRendererOption {
 	}
 }
 
+// WithMaxImageHeight sets the maximum height in character cells for mosaic images.
+// Images taller than this are proportionally scaled down.
+func WithMaxImageHeight(height int) TermRendererOption {
+	return func(tr *TermRenderer) error {
+		tr.ansiOptions.MaxImageHeight = height
+		return nil
+	}
+}
+
 // WithNerdFontIcons enables Nerd Font icons for callout blocks (e.g., NOTE, WARNING).
 func WithNerdFontIcons() TermRendererOption {
 	return func(tr *TermRenderer) error {

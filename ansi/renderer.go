@@ -25,6 +25,7 @@ type Options struct {
 	NerdFontIcons    bool
 	Styles           StyleConfig
 	ChromaFormatter  string
+	MaxImageHeight   int
 }
 
 // ANSIRenderer renders markdown content as ANSI escaped sequences.

@@ -15,6 +15,10 @@ import (
 	"github.com/charmbracelet/x/mosaic"
 )
 
+// pixelsPerCell is the approximate width of a terminal character cell in CSS pixels.
+// Used to convert HTML <img width> attribute values to character cells.
+const pixelsPerCell = 10
+
 // An ImageElement is used to render images elements.
 type ImageElement struct {
 	Text     string
@@ -69,6 +73,15 @@ func (e *ImageElement) tryRenderMosaic(w io.Writer, ctx RenderContext) bool {
 		return false
 	}
 	width := e.Width
+	if width > 0 {
+		width /= pixelsPerCell
+		if width < 1 {
+			width = 1
+		}
+		if ctx.options.MosaicWidth > 0 && width > ctx.options.MosaicWidth {
+			width = ctx.options.MosaicWidth
+		}
+	}
 	if width <= 0 {
 		width = ctx.options.MosaicWidth
 	}
@@ -78,14 +91,32 @@ func (e *ImageElement) tryRenderMosaic(w io.Writer, ctx RenderContext) bool {
 			width = 20
 		}
 	}
-	m := mosaic.New()
-	m = m.Width(width * 2)
-	art := m.Render(img)
+	maxH := ctx.options.MaxImageHeight
+	art := renderMosaic(img, width, maxH)
 	el := &BaseElement{
 		Token: art,
 		Style: ctx.options.Styles.Image,
 	}
 	return el.Render(w, ctx) == nil
+}
+
+func renderMosaic(img image.Image, widthCells, maxHeight int) string {
+	m := mosaic.New()
+	m = m.Width(widthCells * 2)
+	art := m.Render(img)
+	if maxHeight > 0 {
+		lines := strings.Count(art, "\n")
+		if lines > maxHeight {
+			newWidth := widthCells * maxHeight / lines
+			if newWidth < 1 {
+				newWidth = 1
+			}
+			m = mosaic.New()
+			m = m.Width(newWidth * 2)
+			art = m.Render(img)
+		}
+	}
+	return art
 }
 
 // Render renders an ImageElement.
