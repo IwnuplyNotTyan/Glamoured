@@ -10,7 +10,7 @@ import (
 	"log"
 	"os"
 
-	"glamoured"
+	"github.com/iwnuplynottyan/glamoured"
 	"github.com/charmbracelet/colorprofile"
 )
 

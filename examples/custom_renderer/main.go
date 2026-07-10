@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"glamoured"
+	"github.com/iwnuplynottyan/glamoured"
 )
 
 func main() {

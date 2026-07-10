@@ -1,4 +1,4 @@
-module glamoured
+module github.com/iwnuplynottyan/glamoured
 
 go 1.25.12
 

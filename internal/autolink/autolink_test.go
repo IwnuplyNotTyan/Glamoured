@@ -3,7 +3,7 @@ package autolink_test
 import (
 	"testing"
 
-	"glamoured/internal/autolink"
+	"github.com/iwnuplynottyan/glamoured/internal/autolink"
 )
 
 func TestDetect(t *testing.T) {

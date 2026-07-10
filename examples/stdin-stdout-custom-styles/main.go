@@ -14,7 +14,7 @@ import (
 	"io"
 	"os"
 
-	"glamoured"
+	"github.com/iwnuplynottyan/glamoured"
 )
 
 const defaultWidth = 80

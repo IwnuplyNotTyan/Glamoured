@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"glamoured"
+	"github.com/iwnuplynottyan/glamoured"
 )
 
 func main() {

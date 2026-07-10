@@ -1,6 +1,6 @@
 package styles
 
-import "glamoured/ansi"
+import "github.com/iwnuplynottyan/glamoured/ansi"
 
 // DraculaStyleConfig is the dracula style.
 var DraculaStyleConfig = ansi.StyleConfig{

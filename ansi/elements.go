@@ -3,7 +3,7 @@ package ansi
 import (
 	"bytes"
 	"fmt"
-	"glamoured/internal/autolink"
+	"github.com/iwnuplynottyan/glamoured/internal/autolink"
 	"html"
 	"io"
 	"strconv"

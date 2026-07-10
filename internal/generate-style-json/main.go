@@ -3,8 +3,8 @@ package main //nolint:revive
 import (
 	"encoding/json"
 	"fmt"
-	"glamoured/ansi"
-	"glamoured/styles"
+	"github.com/iwnuplynottyan/glamoured/ansi"
+	"github.com/iwnuplynottyan/glamoured/styles"
 	"os"
 	"path/filepath"
 )
