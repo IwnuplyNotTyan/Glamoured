@@ -568,11 +568,11 @@ type calloutType struct {
 }
 
 var calloutTypes = []calloutType{
-	{marker: "[!NOTE]", label: "Note:", color: "39", nerdIcon: "\uf05a"},
-	{marker: "[!TIP]", label: "Tip:", color: "42", nerdIcon: "\uf0eb"},
-	{marker: "[!IMPORTANT]", label: "Important:", color: "129", nerdIcon: "\uf06a"},
-	{marker: "[!WARNING]", label: "Warning:", color: "214", nerdIcon: "\uf071"},
-	{marker: "[!CAUTION]", label: "Caution:", color: "196", nerdIcon: "\uf057"},
+	{marker: "[!NOTE]", label: "Note:", color: "39", nerdIcon: "\uf05a "},
+	{marker: "[!TIP]", label: "Tip:", color: "42", nerdIcon: "\uf0eb "},
+	{marker: "[!IMPORTANT]", label: "Important:", color: "129", nerdIcon: "\uf06a "},
+	{marker: "[!WARNING]", label: "Warning:", color: "214", nerdIcon: "\uf071 "},
+	{marker: "[!CAUTION]", label: "Caution:", color: "196", nerdIcon: "\uf057 "},
 }
 
 func detectCallout(s string) *calloutType {
