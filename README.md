@@ -94,7 +94,7 @@ This renders `  Note:`, `  Tip:`, `  Important:`, `  Warning:`, `
 ## Base Usage
 
 ```go
-import "charm.land/glamour/v2"
+import "github.com/iwnuplynottyan/glamoured"
 
 in := `# Hello World
 
@@ -111,7 +111,7 @@ fmt.Print(out)
 ### Custom Renderer
 
 ```go
-import "charm.land/glamour/v2"
+import "github.com/iwnuplynottyan/glamoured"
 
 r, _ := glamour.NewTermRenderer(
     // wrap output at specific width (default is 80)
@@ -147,7 +147,7 @@ to perform downsampling before rendering:
 
 ```go
 import (
-    "charm.land/glamour/v2"
+    "github.com/iwnuplynottyan/glamoured"
     "charm.land/lipgloss/v2"
 )
 

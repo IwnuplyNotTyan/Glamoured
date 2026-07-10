@@ -14,7 +14,7 @@ import (
 	"io"
 	"os"
 
-	"charm.land/glamour/v2"
+	"glamoured"
 )
 
 const defaultWidth = 80

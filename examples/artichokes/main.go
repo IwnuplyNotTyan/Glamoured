@@ -10,7 +10,7 @@ import (
 	"log"
 	"os"
 
-	"charm.land/glamour/v2"
+	"glamoured"
 	"github.com/charmbracelet/colorprofile"
 )
 

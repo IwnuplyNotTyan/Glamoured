@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"charm.land/glamour/v2/internal/autolink"
+	"glamoured/internal/autolink"
 	east "github.com/yuin/goldmark-emoji/ast"
 	"github.com/yuin/goldmark/ast"
 	astext "github.com/yuin/goldmark/extension/ast"

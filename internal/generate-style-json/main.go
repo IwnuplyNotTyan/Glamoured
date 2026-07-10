@@ -6,8 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"charm.land/glamour/v2/ansi"
-	styles "charm.land/glamour/v2/styles"
+	"glamoured/ansi"
+	styles "glamoured/styles"
 )
 
 func writeStyleJSON(filename string, styleConfig *ansi.StyleConfig) error {

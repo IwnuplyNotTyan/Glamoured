@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"charm.land/glamour/v2"
+	"glamoured"
 )
 
 func main() {

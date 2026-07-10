@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"charm.land/glamour/v2/styles"
+	"glamoured/styles"
 	"github.com/charmbracelet/x/exp/golden"
 )
 

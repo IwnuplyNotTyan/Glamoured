@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"charm.land/glamour/v2"
+	"glamoured"
 )
 
 func main() {

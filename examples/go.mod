@@ -3,8 +3,8 @@ module examples
 go 1.25.8
 
 require (
-	charm.land/glamour/v2 v2.0.0-00010101000000-000000000000
 	github.com/charmbracelet/colorprofile v0.4.3
+	glamoured v0.0.0-00010101000000-000000000000
 )
 
 require (
@@ -31,10 +31,10 @@ require (
 	github.com/yuin/goldmark v1.7.8 // indirect
 	github.com/yuin/goldmark-emoji v1.0.5 // indirect
 	golang.org/x/image v0.43.0 // indirect
-	golang.org/x/net v0.39.0 // indirect
-	golang.org/x/sync v0.21.0 // indirect
-	golang.org/x/sys v0.45.0 // indirect
-	golang.org/x/text v0.38.0 // indirect
+	golang.org/x/net v0.57.0 // indirect
+	golang.org/x/sync v0.22.0 // indirect
+	golang.org/x/sys v0.47.0 // indirect
+	golang.org/x/text v0.40.0 // indirect
 )
 
-replace charm.land/glamour/v2 => ../
+replace glamoured => ../
