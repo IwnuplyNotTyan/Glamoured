@@ -84,12 +84,8 @@ func (e *ImageElement) tryRenderMosaic(w io.Writer, ctx RenderContext) bool {
 		outH = 1
 	}
 	m := mosaic.New().Width(outW).Height(outH)
-	art := m.Render(img)
-	el := &BaseElement{
-		Token: art,
-		Style: ctx.options.Styles.Image,
-	}
-	return el.Render(w, ctx) == nil
+	_, _ = io.WriteString(w, "\n"+m.Render(img))
+	return true
 }
 
 func (e *ImageElement) widthCells(ctx RenderContext) int {
