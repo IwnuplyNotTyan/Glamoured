@@ -1,6 +1,7 @@
 package ansi
 
 import (
+	"bytes"
 	"strings"
 	"testing"
 )
@@ -311,6 +312,70 @@ func TestTryRenderBadge(t *testing.T) {
 			t.Errorf("expected no Nerd Font icon when disabled: %q", out)
 		}
 	})
+}
+
+func TestParseShieldsBadgeSocialSVG(t *testing.T) {
+	svg := []byte(`<svg xmlns="http://www.w3.org/2000/svg" width="76" height="20">
+  <linearGradient id="a" x2="0" y2="100%">
+    <stop offset="0" stop-color="#fcfcfc" stop-opacity="0"/>
+    <stop offset="1" stop-opacity=".1"/>
+  </linearGradient>
+  <g stroke="#d5d5d5">
+    <rect stroke="none" fill="#fcfcfc" x=".5" y=".5" width="54" height="19" rx="2"/>
+    <rect x="60.5" y=".5" width="15" height="19" rx="2" fill="#fafafa"/>
+    <rect x="60" y="7.5" width=".5" height="5" stroke="#fafafa"/>
+  </g>
+  <g aria-hidden="false" fill="#333">
+    <a href="https://github.com/IwnuplyNotTyan/koi">
+      <text aria-hidden="true" x="355" y="150" fill="#fff">Stars</text>
+      <text x="355" y="140">Stars</text>
+    </a>
+    <a href="https://github.com/IwnuplyNotTyan/koi/stargazers">
+      <text aria-hidden="true" x="675" y="150" fill="#fff">2</text>
+      <text id="rlink" x="675" y="140">2</text>
+    </a>
+  </g>
+</svg>`)
+	// Try title first (should fail for social badge)
+	m := shieldTitleRe.FindSubmatch(svg)
+	if m != nil {
+		t.Fatal("expected no <title> match in social badge SVG")
+	}
+	// Try aria-label (should also fail)
+	m = shieldAriaRe.FindSubmatch(svg)
+	if m != nil {
+		t.Fatal("expected no aria-label match in social badge SVG")
+	}
+	// Try <text> elements (should succeed)
+	texts := shieldTextRe.FindAllSubmatch(svg, -1)
+	var visible []string
+	for _, submatch := range texts {
+		if !bytes.Contains(submatch[0], []byte("aria-hidden")) {
+			visible = append(visible, string(submatch[1]))
+		}
+	}
+	if len(visible) < 2 {
+		t.Fatalf("expected at least 2 visible <text> elements, got %d: %v", len(visible), visible)
+	}
+	if visible[0] != "Stars" {
+		t.Errorf("expected label 'Stars', got %q", visible[0])
+	}
+	if visible[1] != "2" {
+		t.Errorf("expected message '2', got %q", visible[1])
+	}
+	// Verify color extraction from second <rect fill>
+	fills := shieldFillRe.FindAllSubmatch(svg, -1)
+	if len(fills) < 2 {
+		t.Fatal("expected at least 2 <rect fill> matches")
+	}
+	colorStr := string(fills[1][1])
+	if colorStr != "#fafafa" {
+		t.Errorf("expected message bg color '#fafafa', got %q", colorStr)
+	}
+	color := parseShieldsColor(colorStr)
+	if color == 240 {
+		t.Errorf("expected non-default color for #fafafa, got %d", color)
+	}
 }
 
 func TestLogoNerdIcon(t *testing.T) {

@@ -1,6 +1,7 @@
 package ansi
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"io"
@@ -16,6 +17,7 @@ var (
 	shieldTitleRe  = regexp.MustCompile(`<title>([^:]+): ([^<]*)</title>`)
 	shieldAriaRe   = regexp.MustCompile(`aria-label="([^:]+): ([^"]*)"`)
 	shieldFillRe   = regexp.MustCompile(`<rect[^>]*fill="([^"]+)"`)
+	shieldTextRe   = regexp.MustCompile(`<text[^>]*>([^<]+)</text>`)
 )
 
 // isShieldsURL reports whether the URL points to shields.io.
@@ -43,16 +45,30 @@ func fetchShieldsBadge(rawURL string) (label, message string, color int, ok bool
 	if err != nil {
 		return "", "", 0, false
 	}
-	// Extract label and message from <title>LABEL: MESSAGE</title> or aria-label
+	// Extract label and message from <title>LABEL: MESSAGE</title>, aria-label,
+	// or visible <text> elements (social badge style)
 	m := shieldTitleRe.FindSubmatch(body)
 	if m == nil {
 		m = shieldAriaRe.FindSubmatch(body)
 	}
-	if m == nil {
-		return "", "", 0, false
+	if m != nil {
+		label = string(m[1])
+		message = string(m[2])
+	} else {
+		// Social badge: no <title>, extract from visible <text> elements
+		texts := shieldTextRe.FindAllSubmatch(body, -1)
+		var visible []string
+		for _, t := range texts {
+			if !bytes.Contains(t[0], []byte("aria-hidden")) {
+				visible = append(visible, string(t[1]))
+			}
+		}
+		if len(visible) < 2 {
+			return "", "", 0, false
+		}
+		label = visible[0]
+		message = visible[1]
 	}
-	label = string(m[1])
-	message = string(m[2])
 	// Extract message background color from second <rect fill="COLOR">
 	fills := shieldFillRe.FindAllSubmatch(body, -1)
 	if len(fills) < 2 {
