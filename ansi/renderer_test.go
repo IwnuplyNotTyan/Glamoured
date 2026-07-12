@@ -80,7 +80,9 @@ func TestRenderer(t *testing.T) {
 			ar := NewRenderer(options)
 			md.SetRenderer(
 				renderer.NewRenderer(
-					renderer.WithNodeRenderers(util.Prioritized(ar, 1000))))
+					renderer.WithNodeRenderers(util.Prioritized(ar, 1000)),
+				),
+			)
 
 			var buf bytes.Buffer
 			if err := md.Convert(in, &buf); err != nil {
@@ -139,7 +141,9 @@ func TestRendererIssues(t *testing.T) {
 			ar := NewRenderer(options)
 			md.SetRenderer(
 				renderer.NewRenderer(
-					renderer.WithNodeRenderers(util.Prioritized(ar, 1000))))
+					renderer.WithNodeRenderers(util.Prioritized(ar, 1000)),
+				),
+			)
 
 			var buf bytes.Buffer
 			if err := md.Convert(in, &buf); err != nil {
@@ -204,7 +208,9 @@ func TestCalloutBlocks(t *testing.T) {
 	ar := NewRenderer(options)
 	md.SetRenderer(
 		renderer.NewRenderer(
-			renderer.WithNodeRenderers(util.Prioritized(ar, 1000))))
+			renderer.WithNodeRenderers(util.Prioritized(ar, 1000)),
+		),
+	)
 
 	var buf bytes.Buffer
 	if err := md.Convert([]byte(input), &buf); err != nil {
@@ -321,7 +327,9 @@ func TestCalloutBlocksWithNerdFontIcons(t *testing.T) {
 	ar := NewRenderer(options)
 	md.SetRenderer(
 		renderer.NewRenderer(
-			renderer.WithNodeRenderers(util.Prioritized(ar, 1000))))
+			renderer.WithNodeRenderers(util.Prioritized(ar, 1000)),
+		),
+	)
 
 	var buf bytes.Buffer
 	if err := md.Convert([]byte(input), &buf); err != nil {
@@ -340,4 +348,3 @@ func TestCalloutBlocksWithNerdFontIcons(t *testing.T) {
 		t.Error("output should not contain raw marker")
 	}
 }
-

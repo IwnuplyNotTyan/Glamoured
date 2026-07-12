@@ -3,10 +3,11 @@ package main //nolint:revive
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/iwnuplynottyan/glamoured/ansi"
-	"github.com/iwnuplynottyan/glamoured/styles"
 	"os"
 	"path/filepath"
+
+	"github.com/iwnuplynottyan/glamoured/ansi"
+	"github.com/iwnuplynottyan/glamoured/styles"
 )
 
 func writeStyleJSON(filename string, styleConfig *ansi.StyleConfig) error {

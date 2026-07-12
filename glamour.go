@@ -7,12 +7,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/iwnuplynottyan/glamoured/ansi"
-	"github.com/iwnuplynottyan/glamoured/styles"
 	"io"
 	"os"
 	"regexp"
 	"strings"
+
+	"github.com/iwnuplynottyan/glamoured/ansi"
+	"github.com/iwnuplynottyan/glamoured/styles"
 
 	"github.com/yuin/goldmark"
 	emoji "github.com/yuin/goldmark-emoji"
@@ -87,12 +88,12 @@ func NewTermRenderer(options ...TermRendererOption) (*TermRenderer, error) {
 			Styles:        *styles.DefaultStyles["dark"],
 		},
 	}
-		for _, o := range options {
-			if err := o(tr); err != nil {
-				return nil, err
-			}
+	for _, o := range options {
+		if err := o(tr); err != nil {
+			return nil, err
 		}
-		ar := ansi.NewRenderer(tr.ansiOptions)
+	}
+	ar := ansi.NewRenderer(tr.ansiOptions)
 	tr.md.SetRenderer(
 		renderer.NewRenderer(
 			renderer.WithNodeRenderers(

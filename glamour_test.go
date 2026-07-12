@@ -10,8 +10,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/iwnuplynottyan/glamoured/styles"
 	"github.com/charmbracelet/x/exp/golden"
+	"github.com/iwnuplynottyan/glamoured/styles"
 )
 
 const markdown = "testdata/readme.markdown.in"
@@ -305,9 +305,9 @@ func TestWithChromaFormatterDefault(t *testing.T) {
 
 func TestCenterBlock(t *testing.T) {
 	tests := []struct {
-		name    string
-		md      string
-		check   string
+		name  string
+		md    string
+		check string
 	}{
 		{
 			name:  "center tag",

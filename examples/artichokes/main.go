@@ -10,8 +10,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/iwnuplynottyan/glamoured"
 	"github.com/charmbracelet/colorprofile"
+	"github.com/iwnuplynottyan/glamoured"
 )
 
 //go:embed artichokes.md

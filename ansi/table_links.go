@@ -3,12 +3,13 @@ package ansi
 import (
 	"bytes"
 	"fmt"
-	"github.com/iwnuplynottyan/glamoured/internal/autolink"
 	"io"
 	"net/url"
 	"slices"
 	"strconv"
 	"strings"
+
+	"github.com/iwnuplynottyan/glamoured/internal/autolink"
 
 	xansi "github.com/charmbracelet/x/ansi"
 	"github.com/charmbracelet/x/exp/slice"

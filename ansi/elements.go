@@ -3,11 +3,12 @@ package ansi
 import (
 	"bytes"
 	"fmt"
-	"github.com/iwnuplynottyan/glamoured/internal/autolink"
 	"html"
 	"io"
 	"strconv"
 	"strings"
+
+	"github.com/iwnuplynottyan/glamoured/internal/autolink"
 
 	east "github.com/yuin/goldmark-emoji/ast"
 	"github.com/yuin/goldmark/ast"
