@@ -157,6 +157,93 @@ func TestRenderBadge(t *testing.T) {
 	})
 }
 
+func TestTryRenderBadge(t *testing.T) {
+	t.Run("renders shield badge", func(t *testing.T) {
+		e := &ImageElement{
+			URL: "https://img.shields.io/badge/Go-1.21-blue",
+		}
+		ctx := NewRenderContext(Options{
+			ShieldsBadges: true,
+			MosaicEnabled: false,
+		})
+		var buf strings.Builder
+		result := e.tryRenderBadge(&buf, ctx)
+		if !result {
+			t.Fatal("tryRenderBadge returned false")
+		}
+		out := buf.String()
+		if !strings.Contains(out, "Go") || !strings.Contains(out, "1.21") {
+			t.Errorf("badge output missing content: %q", out)
+		}
+	})
+
+	t.Run("skips non-shield URL", func(t *testing.T) {
+		e := &ImageElement{
+			URL: "https://example.com/image.png",
+		}
+		ctx := NewRenderContext(Options{
+			ShieldsBadges: true,
+		})
+		var buf strings.Builder
+		result := e.tryRenderBadge(&buf, ctx)
+		if result {
+			t.Fatal("tryRenderBadge should return false for non-shield URL")
+		}
+	})
+
+	t.Run("skips when disabled", func(t *testing.T) {
+		e := &ImageElement{
+			URL: "https://img.shields.io/badge/Go-1.21-blue",
+		}
+		ctx := NewRenderContext(Options{
+			ShieldsBadges: false,
+		})
+		var buf strings.Builder
+		result := e.tryRenderBadge(&buf, ctx)
+		if result {
+			t.Fatal("tryRenderBadge should return false when disabled")
+		}
+	})
+
+	t.Run("uses Nerd Font icon when enabled", func(t *testing.T) {
+		e := &ImageElement{
+			URL: "https://img.shields.io/badge/Go-1.21-blue?logo=go",
+		}
+		ctx := NewRenderContext(Options{
+			ShieldsBadges: true,
+			NerdFontIcons: true,
+		})
+		var buf strings.Builder
+		result := e.tryRenderBadge(&buf, ctx)
+		if !result {
+			t.Fatal("tryRenderBadge returned false")
+		}
+		out := buf.String()
+		if !strings.Contains(out, "\ue61b") {
+			t.Errorf("expected Nerd Font icon in output: %q", out)
+		}
+	})
+
+	t.Run("no icon when Nerd Font disabled", func(t *testing.T) {
+		e := &ImageElement{
+			URL: "https://img.shields.io/badge/Go-1.21-blue?logo=go",
+		}
+		ctx := NewRenderContext(Options{
+			ShieldsBadges: true,
+			NerdFontIcons: false,
+		})
+		var buf strings.Builder
+		result := e.tryRenderBadge(&buf, ctx)
+		if !result {
+			t.Fatal("tryRenderBadge returned false")
+		}
+		out := buf.String()
+		if strings.Contains(out, "\ue61b") {
+			t.Errorf("expected no Nerd Font icon when disabled: %q", out)
+		}
+	})
+}
+
 func TestLogoNerdIcon(t *testing.T) {
 	tests := []struct {
 		logo string

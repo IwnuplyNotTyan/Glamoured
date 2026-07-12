@@ -128,8 +128,41 @@ func scaleToMaxHeight(img image.Image, widthCells, maxHeight int) int {
 	return widthCells
 }
 
+func (e *ImageElement) tryRenderBadge(w io.Writer, ctx RenderContext) bool {
+	if !ctx.options.ShieldsBadges || e.TextOnly {
+		return false
+	}
+	u := resolveRelativeURL(e.BaseURL, e.URL)
+	label, msg, color, logo, ok := parseShieldsURL(u)
+	if !ok {
+		return false
+	}
+	ansiColor := badgeNamedColor(color)
+	if len(color) == 6 && isHex(color) {
+		ansiColor = hexToANSI(color)
+	}
+	var icon string
+	if ctx.options.NerdFontIcons {
+		icon = logoNerdIcon(logo)
+	}
+	renderBadge(w, label, msg, ansiColor, icon)
+	return true
+}
+
+func isHex(s string) bool {
+	for _, c := range s {
+		if !((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')) {
+			return false
+		}
+	}
+	return true
+}
+
 // Render renders an ImageElement.
 func (e *ImageElement) Render(w io.Writer, ctx RenderContext) error {
+	if e.tryRenderBadge(w, ctx) {
+		return nil
+	}
 	if e.tryRenderMosaic(w, ctx) {
 		return nil
 	}
