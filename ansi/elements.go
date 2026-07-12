@@ -444,15 +444,30 @@ func (tr *ANSIRenderer) NewElement(node ast.Node, source []byte) Element {
 			line := n.Lines().At(i)
 			raw += string(line.Value(source))
 		}
-		if src, w, h := parseHTMLImage(raw); src != "" {
-			return Element{
-				Renderer: &ImageElement{
+		if imgs := parseHTMLImages(raw); len(imgs) > 0 {
+			if len(imgs) == 1 {
+				return Element{
+					Renderer: &ImageElement{
+						BaseURL:  ctx.options.BaseURL,
+						URL:      imgs[0].src,
+						TextOnly: false,
+						Width:    imgs[0].width,
+						Height:   imgs[0].height,
+					},
+				}
+			}
+			var elems []*ImageElement
+			for _, img := range imgs {
+				elems = append(elems, &ImageElement{
 					BaseURL:  ctx.options.BaseURL,
-					URL:      src,
+					URL:      img.src,
 					TextOnly: false,
-					Width:    w,
-					Height:   h,
-				},
+					Width:    img.width,
+					Height:   img.height,
+				})
+			}
+			return Element{
+				Renderer: &imageListRenderer{images: elems},
 			}
 		}
 		return Element{
@@ -468,15 +483,30 @@ func (tr *ANSIRenderer) NewElement(node ast.Node, source []byte) Element {
 			seg := n.Segments.At(i)
 			raw += string(seg.Value(source))
 		}
-		if src, w, h := parseHTMLImage(raw); src != "" {
-			return Element{
-				Renderer: &ImageElement{
+		if imgs := parseHTMLImages(raw); len(imgs) > 0 {
+			if len(imgs) == 1 {
+				return Element{
+					Renderer: &ImageElement{
+						BaseURL:  ctx.options.BaseURL,
+						URL:      imgs[0].src,
+						TextOnly: false,
+						Width:    imgs[0].width,
+						Height:   imgs[0].height,
+					},
+				}
+			}
+			var elems []*ImageElement
+			for _, img := range imgs {
+				elems = append(elems, &ImageElement{
 					BaseURL:  ctx.options.BaseURL,
-					URL:      src,
+					URL:      img.src,
 					TextOnly: false,
-					Width:    w,
-					Height:   h,
-				},
+					Width:    img.width,
+					Height:   img.height,
+				})
+			}
+			return Element{
+				Renderer: &imageListRenderer{images: elems},
 			}
 		}
 		return Element{
@@ -537,37 +567,67 @@ func (tr *ANSIRenderer) NewElement(node ast.Node, source []byte) Element {
 	}
 }
 
-// parseHTMLImage parses an HTML string looking for <img> tags.
-// Returns the src, width, height if found, otherwise empty strings/0.
-func parseHTMLImage(htmlInput string) (src string, width int, height int) {
+type htmlImage struct {
+	src    string
+	width  int
+	height int
+}
+
+// parseHTMLImages parses an HTML string looking for <img> tags.
+// Returns all found images. Unlike parseHTMLImage (which stops at the first),
+// this collects every <img> in the HTML, which is essential for badge walls
+// where multiple shields.io badges are in a single HTML block.
+func parseHTMLImages(htmlInput string) []htmlImage {
 	doc, err := nhtml.Parse(strings.NewReader(htmlInput))
 	if err != nil {
-		return
+		return nil
 	}
-	var findImg func(*nhtml.Node) bool
-	findImg = func(n *nhtml.Node) bool {
+	var imgs []htmlImage
+	var walk func(*nhtml.Node)
+	walk = func(n *nhtml.Node) {
 		if n.Type == nhtml.ElementNode && n.Data == "img" {
+			var img htmlImage
 			for _, a := range n.Attr {
 				switch a.Key {
 				case "src":
-					src = a.Val
+					img.src = a.Val
 				case "width":
-					width, _ = strconv.Atoi(a.Val)
+					img.width, _ = strconv.Atoi(a.Val)
 				case "height":
-					height, _ = strconv.Atoi(a.Val)
+					img.height, _ = strconv.Atoi(a.Val)
 				}
 			}
-			return true
+			imgs = append(imgs, img)
 		}
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			if findImg(c) {
-				return true
-			}
+			walk(c)
 		}
-		return false
 	}
-	findImg(doc)
-	return
+	walk(doc)
+	return imgs
+}
+
+// parseHTMLImage parses an HTML string looking for <img> tags.
+// Returns the first found image's src, width, height.
+func parseHTMLImage(htmlInput string) (src string, width int, height int) {
+	imgs := parseHTMLImages(htmlInput)
+	if len(imgs) == 0 {
+		return "", 0, 0
+	}
+	return imgs[0].src, imgs[0].width, imgs[0].height
+}
+
+type imageListRenderer struct {
+	images []*ImageElement
+}
+
+func (r *imageListRenderer) Render(w io.Writer, ctx RenderContext) error {
+	for _, img := range r.images {
+		if err := img.Render(w, ctx); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 type calloutType struct {
