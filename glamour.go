@@ -428,20 +428,33 @@ func stripANSI(s string) string {
 	return ansiPattern.ReplaceAllString(s, "")
 }
 
-func visibleWidth(s string) int {
-	return len([]rune(stripANSI(s)))
-}
-
 // renderCenterBlock renders content for use inside a centered block,
 // preserving all TermRenderer options from the parent (ShieldsBadges, etc.).
 func (tr *TermRenderer) renderCenterBlock(content string) (string, error) {
-	r, err := NewTermRenderer(
-		WithStylePath(tr.stylePath),
-		func(inner *TermRenderer) error {
-			inner.ansiOptions = tr.ansiOptions
+	var opts []TermRendererOption
+	if tr.stylePath != "" {
+		opts = append(opts, WithStylePath(tr.stylePath))
+	} else {
+		opts = append(opts, func(inner *TermRenderer) error {
+			inner.ansiOptions.Styles = tr.ansiOptions.Styles
 			return nil
-		},
-	)
+		})
+	}
+	opts = append(opts, func(inner *TermRenderer) error {
+		inner.ansiOptions.WordWrap = tr.ansiOptions.WordWrap
+		inner.ansiOptions.MosaicEnabled = tr.ansiOptions.MosaicEnabled
+		inner.ansiOptions.MosaicWidth = tr.ansiOptions.MosaicWidth
+		inner.ansiOptions.TableWrap = tr.ansiOptions.TableWrap
+		inner.ansiOptions.InlineTableLinks = tr.ansiOptions.InlineTableLinks
+		inner.ansiOptions.PreserveNewLines = tr.ansiOptions.PreserveNewLines
+		inner.ansiOptions.NerdFontIcons = tr.ansiOptions.NerdFontIcons
+		inner.ansiOptions.ChromaFormatter = tr.ansiOptions.ChromaFormatter
+		inner.ansiOptions.MosaicMaxHeight = tr.ansiOptions.MosaicMaxHeight
+		inner.ansiOptions.ShieldsBadges = tr.ansiOptions.ShieldsBadges
+		inner.ansiOptions.BaseURL = tr.ansiOptions.BaseURL
+		return nil
+	})
+	r, err := NewTermRenderer(opts...)
 	if err != nil {
 		return "", err
 	}
@@ -451,7 +464,10 @@ func (tr *TermRenderer) renderCenterBlock(content string) (string, error) {
 func centerText(text string, width int) string {
 	lines := strings.Split(text, "\n")
 	for i, line := range lines {
-		vw := visibleWidth(line)
+		// Strip trailing spaces (including ANSI-styled pad spaces from MarginWriter)
+		clean := stripANSI(line)
+		trimmed := strings.TrimRight(clean, " ")
+		vw := len([]rune(trimmed))
 		if vw >= width || vw == 0 {
 			continue
 		}
