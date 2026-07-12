@@ -306,12 +306,50 @@ func (tr *TermRenderer) Write(b []byte) (int, error) {
 // Close must be called after writing to TermRenderer. You can then retrieve
 // the rendered markdown by calling Read.
 func (tr *TermRenderer) Close() error {
-	err := tr.md.Convert(tr.buf.Bytes(), &tr.renderBuf)
+	processed, centerBlocks := extractCenterBlocks(string(tr.buf.Bytes()))
+	tr.buf.Reset()
+
+	err := tr.md.Convert([]byte(processed), &tr.renderBuf)
 	if err != nil {
 		return fmt.Errorf("glamour: error converting markdown: %w", err)
 	}
 
-	tr.buf.Reset()
+	if len(centerBlocks) > 0 {
+		result := tr.renderBuf.String()
+		ww := tr.ansiOptions.WordWrap
+		if ww <= 0 {
+			ww = defaultWidth
+		}
+		blockWidth := ww
+		m := tr.ansiOptions.Styles.Document.Margin
+		if m != nil {
+			blockWidth -= *m * 2
+		}
+
+		for marker, content := range centerBlocks {
+			inner, err := tr.renderCenterBlock(content)
+			if err != nil {
+				inner, err = Render(content, "dark")
+				if err != nil {
+					continue
+				}
+			}
+			centered := centerText(inner, blockWidth)
+			resultLines := strings.Split(result, "\n")
+			var newLines []string
+			for _, line := range resultLines {
+				if strings.Contains(stripANSI(line), marker) {
+					newLines = append(newLines, strings.Split(centered, "\n")...)
+				} else {
+					newLines = append(newLines, line)
+				}
+			}
+			result = strings.Join(newLines, "\n")
+		}
+		tr.renderBuf.Reset()
+		tr.renderBuf.WriteString(result)
+	}
+
 	return nil
 }
 
@@ -367,7 +405,7 @@ func (tr *TermRenderer) RenderBytes(in []byte) ([]byte, error) {
 	return []byte(result), nil
 }
 
-var centerRe = regexp.MustCompile(`(?is)<(?:center|div\s+align="?center"?)\s*>([\s\S]*?)</(?:center|div)\s*>`)
+var centerRe = regexp.MustCompile(`(?is)<(?:center[^>]*|div\s[^>]*align\s*=\s*["']?center["']?[^>]*|p\s[^>]*align\s*=\s*["']?center["']?[^>]*)>([\s\S]*?)</(?:center|div|p)\s*>`)
 
 func extractCenterBlocks(input string) (string, map[string]string) {
 	blocks := make(map[string]string)
