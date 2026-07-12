@@ -69,6 +69,7 @@ func TestTermRenderer(t *testing.T) {
 
 func TestWithEmoji(t *testing.T) {
 	r, err := NewTermRenderer(
+		WithStandardStyle("notty"),
 		WithEmoji(),
 	)
 	if err != nil {
