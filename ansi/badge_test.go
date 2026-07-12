@@ -1,6 +1,7 @@
 package ansi
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -122,6 +123,38 @@ func TestHexToANSI(t *testing.T) {
 			t.Errorf("hexToANSI(%q) = %d, want %d", tt.hex, got, tt.want)
 		}
 	}
+}
+
+func TestRenderBadge(t *testing.T) {
+	t.Run("without icon", func(t *testing.T) {
+		var buf strings.Builder
+		renderBadge(&buf, "Go", "1.21", 32, "")
+		out := buf.String()
+		if !strings.Contains(out, "Go") || !strings.Contains(out, "1.21") {
+			t.Errorf("badge output missing label/message: %q", out)
+		}
+		if !strings.Contains(out, "\x1b[") {
+			t.Errorf("badge output missing ANSI escapes: %q", out)
+		}
+	})
+
+	t.Run("with icon", func(t *testing.T) {
+		var buf strings.Builder
+		renderBadge(&buf, "Go", "1.21", 32, "\ue61b")
+		out := buf.String()
+		if !strings.Contains(out, "\ue61b") {
+			t.Errorf("badge output missing icon: %q", out)
+		}
+	})
+
+	t.Run("line break prefix", func(t *testing.T) {
+		var buf strings.Builder
+		renderBadge(&buf, "Go", "1.21", 32, "")
+		out := buf.String()
+		if out[0] != '\n' {
+			t.Errorf("badge should start with newline, got: %q", out)
+		}
+	})
 }
 
 func TestLogoNerdIcon(t *testing.T) {

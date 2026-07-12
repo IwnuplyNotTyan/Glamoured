@@ -1,6 +1,8 @@
 package ansi
 
 import (
+	"fmt"
+	"io"
 	"net/url"
 	"strconv"
 	"strings"
@@ -117,6 +119,19 @@ func logoNerdIcon(logo string) string {
 		return icon
 	}
 	return "\uf0a3" // generic certificate icon
+}
+
+// renderBadge writes a shields.io-style badge to w.
+// Format: \n[grey bg white fg] icon? LABEL [color bg white fg] MESSAGE [reset]
+func renderBadge(w io.Writer, label, message string, color int, icon string) {
+	labelBg := 240 // dark grey
+	fg := 97       // bright white
+	iconPart := icon
+	if iconPart != "" {
+		iconPart += " "
+	}
+	_, _ = fmt.Fprintf(w, "\n\033[48;5;%d;38;5;%dm %s%s \033[0m\033[48;5;%d;38;5;%dm %s \033[0m",
+		labelBg, fg, iconPart, label, color, fg, message)
 }
 
 // badgeLogoIcons maps logo names to Nerd Font icon strings.
