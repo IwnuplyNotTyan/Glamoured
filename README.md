@@ -24,6 +24,7 @@ r, _ := glamour.NewTermRenderer(
     glamour.WithStandardStyle("dark"),
     glamour.WithMosaic(true),
     glamour.WithMosaicWidth(40), // character cells width
+    glamour.WithMosaicMaxHeight(24), // max height in cells
 )
 
 out, _ := r.Render("![image](https://example.com/image.png)")
@@ -132,6 +133,7 @@ fmt.Print(out)
 | `WithStyles(styleConfig)` | Use a programmatic `StyleConfig` |
 | `WithMosaic(enabled)` | Enable/disable mosaic image rendering |
 | `WithMosaicWidth(width)` | Set mosaic image max width in cells |
+| `WithMosaicMaxHeight(height)` | Set mosaic image max height in cells |
 | `WithNerdFontIcons()` | Enable Nerd Font icons for callout blocks |
 | `WithEmoji()` | Enable emoji rendering (`:+1:` → 👍) |
 | `WithPreservedNewLines()` | Preserve newlines in output |
