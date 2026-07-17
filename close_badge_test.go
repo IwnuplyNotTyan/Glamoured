@@ -15,7 +15,7 @@ func TestCloseBadgeCenter(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, err = r.Write([]byte("<div align=\"center\">\n<img src=\"https://img.shields.io/badge/build-passing-brightgreen\" />\n<img src=\"https://img.shields.io/github/last-commit/golang/go\" />\n</div>"))
+	_, err = io.WriteString(r, "<div align=\"center\">\n<img src=\"https://img.shields.io/badge/build-passing-brightgreen\" />\n<img src=\"https://img.shields.io/github/last-commit/golang/go\" />\n</div>")
 	if err != nil {
 		t.Fatal(err)
 	}
