@@ -607,16 +607,6 @@ func parseHTMLImages(htmlInput string) []htmlImage {
 	return imgs
 }
 
-// parseHTMLImage parses an HTML string looking for <img> tags.
-// Returns the first found image's src, width, height.
-func parseHTMLImage(htmlInput string) (src string, width int, height int) {
-	imgs := parseHTMLImages(htmlInput)
-	if len(imgs) == 0 {
-		return "", 0, 0
-	}
-	return imgs[0].src, imgs[0].width, imgs[0].height
-}
-
 type imageListRenderer struct {
 	images []*ImageElement
 }

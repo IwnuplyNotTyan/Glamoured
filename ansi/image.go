@@ -154,7 +154,8 @@ func (e *ImageElement) tryRenderBadge(w io.Writer, ctx RenderContext) bool {
 	label, msg, ansiColor, ok := fetchShieldsBadge(u)
 	if !ok {
 		// Fallback: extract label from URL path
-		label, msg = shieldFallbackLabel(u)
+		label = shieldFallbackLabel(u)
+		msg = ""
 		if label == "" {
 			return false
 		}
@@ -166,7 +167,7 @@ func (e *ImageElement) tryRenderBadge(w io.Writer, ctx RenderContext) bool {
 
 func isHex(s string) bool {
 	for _, c := range s {
-		if !((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')) {
+		if (c < '0' || c > '9') && (c < 'a' || c > 'f') && (c < 'A' || c > 'F') {
 			return false
 		}
 	}
