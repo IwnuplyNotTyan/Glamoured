@@ -257,16 +257,45 @@ func shieldFallbackLabel(rawURL string) (label, message string) {
 }
 
 // renderBadge writes a shields.io-style badge to w.
-// Format: \n[grey bg white fg] icon? LABEL [color bg white fg] MESSAGE [reset]
-func renderBadge(w io.Writer, label, message string, color int, icon string) {
-	labelBg := 240 // dark grey
-	fg := 97       // bright white
+// Format: \n[labelBg fg] icon? LABEL [color fg] MESSAGE [reset]
+func renderBadge(w io.Writer, label, message string, color, labelBg, fg int, icon string) {
 	iconPart := icon
 	if iconPart != "" {
 		iconPart += " "
 	}
 	_, _ = fmt.Fprintf(w, "\n\033[48;5;%d;38;5;%dm %s%s \033[0m\033[48;5;%d;38;5;%dm %s \033[0m",
 		labelBg, fg, iconPart, label, color, fg, message)
+}
+
+// isLightTheme reports whether the style config represents a light-background theme.
+// It checks the document text color: light text (high ANSI) = dark theme,
+// dark text (low ANSI) = light theme. Defaults to dark if indeterminate.
+func isLightTheme(s StyleConfig) bool {
+	if s.Document.Color == nil {
+		return false
+	}
+	c := *s.Document.Color
+	if ansi, err := strconv.Atoi(c); err == nil {
+		return ansi < 244
+	}
+	c = strings.TrimPrefix(c, "#")
+	if len(c) == 6 && isHex(c) {
+		r := parseHexByte(c[0:2])
+		g := parseHexByte(c[2:4])
+		b := parseHexByte(c[4:6])
+		lum := uint32(r)*299 + uint32(g)*587 + uint32(b)*114
+		return lum > 128*1000
+	}
+	return false
+}
+
+// badgeThemeColors returns the ANSI 256-color codes for badge label background
+// and foreground text, chosen adaptively based on the style config (light vs dark).
+func badgeThemeColors(s StyleConfig) (labelBg, fg int) {
+	if isLightTheme(s) {
+		return 250, 16 // light grey bg, black text
+	}
+	return 237, 231 // dark grey bg, white text
 }
 
 // badgeLogoIcons maps logo names to Nerd Font icon strings.

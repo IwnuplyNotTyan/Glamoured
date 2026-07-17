@@ -196,9 +196,12 @@ func TestHexToANSI(t *testing.T) {
 }
 
 func TestRenderBadge(t *testing.T) {
+	// Use fixed labelBg/fg for deterministic tests
+	const labelBg, fg = 240, 97
+
 	t.Run("without icon", func(t *testing.T) {
 		var buf strings.Builder
-		renderBadge(&buf, "Go", "1.21", 32, "")
+		renderBadge(&buf, "Go", "1.21", 32, labelBg, fg, "")
 		out := buf.String()
 		if !strings.Contains(out, "Go") || !strings.Contains(out, "1.21") {
 			t.Errorf("badge output missing label/message: %q", out)
@@ -210,7 +213,7 @@ func TestRenderBadge(t *testing.T) {
 
 	t.Run("with icon", func(t *testing.T) {
 		var buf strings.Builder
-		renderBadge(&buf, "Go", "1.21", 32, "\ue61b")
+		renderBadge(&buf, "Go", "1.21", 32, labelBg, fg, "\ue61b")
 		out := buf.String()
 		if !strings.Contains(out, "\ue61b") {
 			t.Errorf("badge output missing icon: %q", out)
@@ -219,10 +222,75 @@ func TestRenderBadge(t *testing.T) {
 
 	t.Run("line break prefix", func(t *testing.T) {
 		var buf strings.Builder
-		renderBadge(&buf, "Go", "1.21", 32, "")
+		renderBadge(&buf, "Go", "1.21", 32, labelBg, fg, "")
 		out := buf.String()
 		if out[0] != '\n' {
 			t.Errorf("badge should start with newline, got: %q", out)
+		}
+	})
+}
+
+func TestIsLightTheme(t *testing.T) {
+	tests := []struct {
+		name  string
+		color *string
+		want  bool
+	}{
+		{name: "dark style (252)", color: stringPtr("252"), want: false},
+		{name: "light style (234)", color: stringPtr("234"), want: true},
+		{name: "no color", color: nil, want: false},
+		{name: "light hex", color: stringPtr("#C4C4C4"), want: true},
+		{name: "dark hex", color: stringPtr("#2D2C36"), want: false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := StyleConfig{
+				Document: StyleBlock{
+					StylePrimitive: StylePrimitive{
+						Color: tt.color,
+					},
+				},
+			}
+			got := isLightTheme(s)
+			if got != tt.want {
+				t.Errorf("isLightTheme(%q) = %v, want %v", tt.name, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestBadgeThemeColors(t *testing.T) {
+	t.Run("dark theme", func(t *testing.T) {
+		s := StyleConfig{
+			Document: StyleBlock{
+				StylePrimitive: StylePrimitive{
+					Color: stringPtr("252"),
+				},
+			},
+		}
+		labelBg, fg := badgeThemeColors(s)
+		if labelBg != 237 {
+			t.Errorf("dark theme labelBg = %d, want 237", labelBg)
+		}
+		if fg != 231 {
+			t.Errorf("dark theme fg = %d, want 231", fg)
+		}
+	})
+
+	t.Run("light theme", func(t *testing.T) {
+		s := StyleConfig{
+			Document: StyleBlock{
+				StylePrimitive: StylePrimitive{
+					Color: stringPtr("234"),
+				},
+			},
+		}
+		labelBg, fg := badgeThemeColors(s)
+		if labelBg != 250 {
+			t.Errorf("light theme labelBg = %d, want 250", labelBg)
+		}
+		if fg != 16 {
+			t.Errorf("light theme fg = %d, want 16", fg)
 		}
 	})
 }
@@ -377,6 +445,8 @@ func TestParseShieldsBadgeSocialSVG(t *testing.T) {
 		t.Errorf("expected non-default color for #fafafa, got %d", color)
 	}
 }
+
+func stringPtr(s string) *string { return &s }
 
 func TestLogoNerdIcon(t *testing.T) {
 	tests := []struct {

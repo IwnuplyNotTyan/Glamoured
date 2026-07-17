@@ -136,6 +136,7 @@ func (e *ImageElement) tryRenderBadge(w io.Writer, ctx RenderContext) bool {
 	if !isShieldsURL(u) {
 		return false
 	}
+	labelBg, fg := badgeThemeColors(ctx.options.Styles)
 	// Try static badge (parse label/message/color from URL)
 	if label, msg, colorStr, logo, ok := parseShieldsURL(u); ok {
 		ansiColor := badgeNamedColor(colorStr)
@@ -146,7 +147,7 @@ func (e *ImageElement) tryRenderBadge(w io.Writer, ctx RenderContext) bool {
 		if ctx.options.NerdFontIcons {
 			icon = logoNerdIcon(logo)
 		}
-		renderBadge(w, label, msg, ansiColor, icon)
+		renderBadge(w, label, msg, ansiColor, labelBg, fg, icon)
 		return true
 	}
 	// Dynamic badge: fetch SVG and extract info
@@ -159,7 +160,7 @@ func (e *ImageElement) tryRenderBadge(w io.Writer, ctx RenderContext) bool {
 		}
 		ansiColor = 32 // blue
 	}
-	renderBadge(w, label, msg, ansiColor, "")
+	renderBadge(w, label, msg, ansiColor, labelBg, fg, "")
 	return true
 }
 
